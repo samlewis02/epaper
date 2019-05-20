@@ -67,6 +67,12 @@
   * RES    ->    11 (Physical, BCM: 17)
   * BUSY   ->    18 (Physical, BCM: 24)
   
+    BME280 =>    Raspberry Pi
+  * VIN    ->    17
+  * GND    ->    9
+  * SCL    ->    5
+  * SDA    ->    3
+  
     == How to use ==
     1, run with: 
         sudo python myPython.py

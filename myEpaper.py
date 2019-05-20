@@ -8,6 +8,7 @@ from PIL import Image,ImageDraw,ImageFont
 import traceback
 from getcal import getCal
 from getcurr import getCurr
+from bme280 import readBME280All
 
 
 myCalUrl = "https://script.google.com/macros/s/AKfycbwY2YIhEJeJc3GbmubJ4diF-R8mYYCfEiHH49LnxS70AvGRPskt/exec"
@@ -23,13 +24,32 @@ def drawRectRnd(x0, y0, x1, y1, r, fill):
 
 def initDisplay():
     drawRectRnd(20, 30, 280, 100, 10, 255)
-    drawRectRnd(20, 140, 280, 380, 10, 255)
+    drawRectRnd(20, 140, 280, 340, 10, 255)
     epd.display(epd.getbuffer(Limage))
+    try:
+        tdyStr, tomStr = getCal(myCalUrl)
+        draw.text((30, 150), tdyStr + tomStr, font = font16, fill = 0)
+    except:
+        draw.text((30, 150), "No calendar data", font = font16, fill = 0)
     
+    try:
+        xrate = float(getCurr(myCurUrl))
+        #print("xrate =", xrate)
+        draw.text((70, 110), "1GBP = "+ str(xrate) + "NT$", font = font16, fill = 255)
+    except:
+        draw.text((70,110), "No exchange data", font=font16, fill=255)
+
+    try:
+        ltemp, lpres, lhum = readBME280All()
+        draw.text((30, 360), b'%.2f'%ltemp + b'C  ' + b'%.2f'%lhum + b'%RH  ' + b'%.1f'%lpres + b'hPa', font = font16, fill=255)
+    except:
+        draw.text((30, 360), "No T, RH, pressure data", font = font16, fill=255)
+         
     
 def showTime(ltime, daydate):
-    drawRectRnd(20, 30, 280, 100, 10, 255)
+    drawRectRnd(20, 30, 280, 100, 10, 255) # blank area
     draw.text((50, 40), ltime, font = font48, fill = 0)
+    draw.rectangle((20,0,280,25), fill=0) # blank area
     draw.text((65, 5), daydate, font = font16, fill = 255)
     epd.display(epd.getbuffer(Limage))
     
@@ -49,19 +69,12 @@ try:
     t = time.time()
     time_now1 = t
     time_now2 = t
+    time_now3 = t
     initDisplay()
-    try:
-        tdyStr, tomStr = getCal(myCalUrl)
-        draw.text((30, 150), tdyStr + tomStr, font = font24, fill = 0)
-    except:
-        draw.text((30, 150), "No calendar data", font = font24, fill = 0)
     
-    xrate = float(getCurr(myCurUrl))
-    print("xrate =", xrate)
-    draw.text((70, 110), "1GBP = "+ str(xrate) + "NT$", font = font16, fill = 255)
-      
 
 ######################## START LOOP ########################
+
     while True:
         if time.time() >= t+ 10: #every 10 seconds
             rn = datetime.datetime.now()
@@ -69,19 +82,33 @@ try:
             daydate = rn.strftime("%A, %d %B %Y")  
             showTime(ltime, daydate)
             t = time.time()
+        # Crude scheduler to get T, RH, pressure every 10 secs
+        if time.time() >= time_now3 + 10:
+            draw.rectangle((20,345,280,385), fill=0) # blank area
+            try:
+                ltemp, lpres, lhum = readBME280All()
+                draw.text((30, 360), b'%.2f'%ltemp + b'C  ' + b'%.2f'%lhum + b'%RH  ' + b'%.1f'%lpres + b'hPa', font = font16, fill=255)
+
+            except:
+                draw.text((30, 360), "No T, R, P data", font = font16, fill = 0)
+            time_now3 = time.time()
+
         # Crude scheduler to get Google calendar every 30 mins
         if time.time() >= time_now1 + 1800:
+            drawRectRnd(20, 140, 280, 340, 10, 255) # blank area
             try:
                 tdyStr, tomStr = getCal(myCalUrl) 
-                draw.text((30, 150), tdyStr + tomStr, font = font24, fill = 0)
+                draw.text((30, 150), tdyStr + tomStr, font = font16, fill = 0)
             except:
-                draw.text((30, 150), "No calendar data", font = font24, fill = 0)
+                draw.text((30, 150), "No calendar data", font = font16, fill = 0)
             time_now1 = time.time()
+            
          # Crude scheduler to get exchange rate every 60 mins
         if time.time() >= time_now2 + 3600:
+            draw.rectangle((60,140,280,345), fill=255) # blank area
             try:
                 xrate = float(getCurr(myCurUrl)) 
-                draw.text((70, 110), str(xrate), font = font16, fill = 255)
+                draw.text((70, 110), str(xrate), font = font16, fill = 0)
             except:
                 draw.text((70, 110), "1GBP = "+ str(xrate) + "NT$", font = font16, fill = 255)
             time_now2 = time.time()
