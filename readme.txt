@@ -4,11 +4,11 @@ The current day and date, current time, exchange rate (GBP to TWD), Google
 Calendar entries for the current and following days, temperature,
 humidity and barometric pressure as measured by the BME280.
 
-The display takes over 10 seconds tp refresh so time cannot be displayed
-every second. Readings update about every 25 seconds.
+The display is painfully slow to update so time is only shown as hours and
+minutes.
 
 The readings are scheduled as follows:
-BME280 readings every 10 seconds
+BME280 readings every minute as time changes
 Calendar every 30 minutes
 Currency conversion every hour
 
@@ -72,7 +72,6 @@ Currency conversion every hour
         sudo python3 myPython.py
     2, run in background
         chmod +x myPython.py
-        nohup ~/Documents/Python-Projects/epaper/myPython.py &
+        nohup ~/Documents/Python-Projects/epaper/myPython.py 
         
-*/
 
