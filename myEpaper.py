@@ -120,10 +120,10 @@ try:
         if time.time() >= time_now2 + 3600:
             draw.rectangle((60,140,280,345), fill=255) # blank area
             try:
-                xrate = float(getCurr(myCurUrl)) 
-                draw.text((70, 110), str(xrate), font = font16, fill = 0)
-            except:
+                xrate = float(getCurr(myCurUrl))
                 draw.text((70, 110), "1GBP = "+ str(xrate) + "NT$", font = font16, fill = 255)
+            except:
+                draw.text((70,100), "No exchange data", font = font16, fill = 255)
             time_now2 = time.time()
         time.sleep(5) # don't hog cpu
         
