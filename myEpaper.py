@@ -19,7 +19,7 @@ epd.init()
 epd.Clear(0xff)
 
 # Drawing on the Vertical image
-Limage = Image.new('1', (epd4in2.EPD_HEIGHT, epd4in2.EPD_WIDTH), 0)  # 0: blacken the frame
+Limage = Image.new('1', (epd4in2.EPD_HEIGHT, epd4in2.EPD_WIDTH), 0)  # 0: black frame
 draw = ImageDraw.Draw(Limage)
 
 font48 = ImageFont.truetype('/usr/share/fonts/truetype/wqy/wqy-microhei.ttc', 48)
@@ -44,8 +44,10 @@ def initDisplay():
     #epd.display(epd.getbuffer(Limage))
     rn = datetime.datetime.now()
     ltime = rn.strftime("%H:%M")
-    daydate = rn.strftime("%A, %d %B %Y")  
-    showTime(ltime, daydate)
+    daydate = rn.strftime("%A, %d %B %Y") 
+    draw.text((90, 40), ltime, font = font48, fill = 0)
+    draw.text((65, 5), daydate, font = font16, fill = 255)
+
     try:
         tdyStr, tomStr = getCal(myCalUrl)
         draw.text((30, 150), tdyStr + tomStr, font = font16, fill = 0)
